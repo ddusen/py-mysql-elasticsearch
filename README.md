@@ -104,4 +104,15 @@ PUT /observer/article/528eb39855e876852c1f6371a82ea634
 2. 日志记录
 3. ...
 
+### Run
+
+```
+cd py-mysql-elasticsearch/
+python3 -m venv VENV
+source VENV/bin/activate
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+
+python core/sync.py
+```
 END!
