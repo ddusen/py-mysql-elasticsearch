@@ -88,24 +88,12 @@ PUT /observer/article/528eb39855e876852c1f6371a82ea634
     "guid": "528eb39855e876852c1f6371a82ea634",
     "score": 2,
     "category": [
-        {
-            "id": "0001",
-            "text": "xxx"
-        },
-        {
-            "id": "0002",
-            "text": "xxx"
-        }
+        { "name": "xxx" },
+        { "name": "xxx" }
     ],
     "area": [
-        {
-            "id": "269",
-            "text": "咸宁"
-        },
-        {
-            "id": "239",
-            "text": "孝感"
-        }
+        { "name": "咸宁" },
+        { "name": "孝感" }
     ]
 }
 ```
