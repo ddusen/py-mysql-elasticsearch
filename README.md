@@ -110,4 +110,10 @@ PUT /observer/article/528eb39855e876852c1f6371a82ea634
 }
 ```
 
+### 功能说明
+
+1. 基于 mysqlbinlog 实时同步与更新
+2. 日志记录
+3. ...
+
 END!
