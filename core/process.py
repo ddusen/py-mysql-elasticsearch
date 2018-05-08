@@ -4,6 +4,7 @@ sys.path.append(os.getcwd())
 from configparser import ConfigParser
 
 from utils.mysql import (query, query_one, save, )
+from utils.string import (date_to_str, )
 
 
 # 读取 config.ini 配置项
@@ -63,3 +64,62 @@ def get_articles(mysql_conf, start, length):
     articles = query(sql=sql, db_config=mysql_conf, list1=(start, length, ))
 
     return articles
+
+
+# 业务相关方法：sql data to doc
+def data_to_doc(mysql_conf, data):
+    '''sql data like this:
+    (
+        '湖南省质监局大力推动认证认可工作服务地方经济成效显著',
+        'http://www.cqn.com.cn/zgzlb/content/2018-05/04/content_5736939.htm',
+        datetime.datetime(2018, 5, 4, 0, 0),
+        '中国质量新闻网', 
+        0
+    )
+    '''
+    guid = data[0]
+    title = data[1] 
+    url = data[2] 
+    pubtime = date_to_str(data[3]) 
+    source = data[4] 
+    score = data[5] 
+    areas = get_areas(mysql_conf, guid)
+    categories = get_categories(mysql_conf, guid)
+
+    '''doc model like this:
+    {
+        "source": "中国新闻网",
+        "title": "对儿童安全构成威胁 指尖陀螺被欧盟列为危险品",
+        "pubtime": "2018-03-14 00:00:00",
+        "url": "http://dw.chinanews.com/chinanews/content.jsp?id=8467281&classify=zw&pageSize=6&language=chs",
+        "score": 2,
+        "category": [
+            { "name": "xxx" },
+            { "name": "xxx" }
+        ],
+        "area": [
+            { "name": "咸宁" },
+            { "name": "孝感" }
+        ]
+    }
+    '''
+    doc = {
+            "title": title,
+            "url": url, 
+            "pubtime": pubtime, 
+            "source": source, 
+            "score": score, 
+            "category": categories,
+            "area": areas
+        }
+
+    return doc
+
+# 验证文档是否存在
+def exists_by_doc_id(esclient, elastic, doc_id):
+    return esclient.exists(
+            index=elastic['index'],
+            doc_type=elastic['type'],
+            id=doc_id,
+        )
+

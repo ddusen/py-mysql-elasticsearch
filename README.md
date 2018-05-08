@@ -85,7 +85,6 @@ PUT /observer/article/528eb39855e876852c1f6371a82ea634
     "title": "对儿童安全构成威胁 指尖陀螺被欧盟列为危险品",
     "pubtime": "2018-03-14 00:00:00",
     "url": "http://dw.chinanews.com/chinanews/content.jsp?id=8467281&classify=zw&pageSize=6&language=chs",
-    "guid": "528eb39855e876852c1f6371a82ea634",
     "score": 2,
     "category": [
         { "name": "xxx" },
