@@ -13,7 +13,7 @@ import pymysql
 class MySQL:
     def __init__(self, db_config):
         self.host = db_config.get('host')
-        self.port = int(db_config.get('port'))
+        self.port = db_config.get('port')
         self.user = db_config.get('user')
         self.passwd = db_config.get('passwd')
         self.db = db_config.get('db')

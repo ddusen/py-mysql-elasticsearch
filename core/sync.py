@@ -2,9 +2,12 @@ import os, sys
 sys.path.append(os.getcwd())
 
 from elasticsearch import Elasticsearch
+from pymysqlreplication import BinLogStreamReader
+from pymysqlreplication.row_event import (DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent, 
+                                        )
 
 from process import (read_config, get_articles, get_article_total,
-                    data_to_doc, exists_by_doc_id, )
+                    data_to_doc, exists_by_doc_id, write_config, )
 from utils.logger import (Logger, )
 
 
@@ -15,6 +18,7 @@ class Sync:
         config = read_config()
         self.mysql = config['mysql']
         self.elastic = config['elastic']
+        self.sqlbinlog = config['sqlbinlog']
 
         # inital logging
         self.logger = Logger()
@@ -36,6 +40,23 @@ class Sync:
 
             start += length
 
+    # 基于 binlog 的增量实时同步
+    def binlog(self):
+        stream = BinLogStreamReader(connection_settings=self.mysql,
+                                    server_id=self.sqlbinlog['server_id'],
+                                    blocking=self.sqlbinlog['blocking'],
+                                    log_file=self.sqlbinlog['log_file'],
+                                    log_pos=self.sqlbinlog['log_pos'],
+                                    only_schemas=self.sqlbinlog['only_schemas'],
+                                    only_tables=self.sqlbinlog['only_tables'],
+                                    only_events=self.sqlbinlog['only_events'],
+                                    )
+        for binlogevent in stream:
+            binlogevent.dump()
+
+        stream.close()
+        # write_config('test', '1', '2')
+
     # elastic save
     def elastic_save(self, guid, doc):
         esclient = Elasticsearch([self.elastic])
@@ -54,4 +75,5 @@ class Sync:
 
 if __name__ == '__main__':
     sync = Sync()
-    sync.full_sql()
+    # sync.full_sql()
+    sync.binlog()

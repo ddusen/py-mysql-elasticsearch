@@ -1,7 +1,9 @@
 import os, sys
 sys.path.append(os.getcwd())
 
-from configparser import ConfigParser
+from configparser import (ConfigParser, RawConfigParser, )
+from pymysqlreplication.row_event import (DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent, 
+                                        )
 
 from utils.mysql import (query, query_one, save, )
 from utils.string import (date_to_str, )
@@ -13,22 +15,47 @@ def read_config():
     cfg.read('core/config.ini')
 
     mysql_conf = {
-                    'host': cfg.get('mysql', 'host'),
-                    'port': cfg.get('mysql', 'port'),
-                    'user': cfg.get('mysql', 'user'),
-                    'passwd': cfg.get('mysql', 'passwd'),
-                    'charset': cfg.get('mysql', 'charset'),
-                    'db': cfg.get('mysql', 'db'),
-                }
+        'host': cfg.get('mysql', 'host'),
+        'port': cfg.getint('mysql', 'port'),
+        'user': cfg.get('mysql', 'user'),
+        'passwd': cfg.get('mysql', 'passwd'),
+        'charset': cfg.get('mysql', 'charset'),
+        'db': cfg.get('mysql', 'db'),
+    }
     elastic_conf = {
-                    'host': cfg.get('elastic', 'host'),
-                    'port': cfg.get('elastic', 'port'),
-                    'index': cfg.get('elastic', 'index'),
-                    'type': cfg.get('elastic', 'type'),
-                }
+        'host': cfg.get('elastic', 'host'),
+        'port': cfg.getint('elastic', 'port'),
+        'index': cfg.get('elastic', 'index'),
+        'type': cfg.get('elastic', 'type'),
+    }
+    
+    is_null = lambda x : None if not x else x
+    is_list = lambda x : None if not x else eval(x)
 
-    return {'mysql': mysql_conf, 'elastic': elastic_conf}
+    binlog_conf = {
+        'server_id': cfg.getint('mysql_binlog', 'server_id'),
+        'blocking': cfg.getboolean('mysql_binlog', 'blocking'),
+        'log_file': is_null(cfg.get('mysql_binlog', 'log_file')),
+        'log_pos': is_null(cfg.get('mysql_binlog', 'log_pos')),
+        'only_schemas': is_list(cfg.get('mysql_binlog', 'only_schemas')),
+        'only_tables': is_list(cfg.get('mysql_binlog', 'only_tables')),
+        'only_events': is_list(cfg.get('mysql_binlog', 'only_events')),
+    }
 
+    return {'mysql': mysql_conf, 'elastic': elastic_conf, 'sqlbinlog': binlog_conf, }
+
+
+# 写入 config.ini 配置项
+def write_config(section, key, value):
+    cfg = RawConfigParser()
+    cfg.read('core/config.ini')
+    if section not in cfg.sections():
+        cfg.add_section(section)
+
+    cfg.set(section, key, value)
+    
+    with open('core/config.ini', 'w') as f:
+        cfg.write(f)
 
 # 业务相关方法：获取 category
 def get_categories(mysql_conf, article_guid):
