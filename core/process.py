@@ -2,8 +2,6 @@ import os, sys
 sys.path.append(os.getcwd())
 
 from configparser import (ConfigParser, RawConfigParser, )
-from pymysqlreplication.row_event import (DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent, 
-                                        )
 
 from utils.mysql import (query, query_one, save, )
 from utils.string import (date_to_str, )
@@ -39,7 +37,6 @@ def read_config():
         'log_pos': is_null(cfg.get('mysql_binlog', 'log_pos')),
         'only_schemas': is_list(cfg.get('mysql_binlog', 'only_schemas')),
         'only_tables': is_list(cfg.get('mysql_binlog', 'only_tables')),
-        'only_events': is_list(cfg.get('mysql_binlog', 'only_events')),
     }
 
     return {'mysql': mysql_conf, 'elastic': elastic_conf, 'sqlbinlog': binlog_conf, }
@@ -53,7 +50,7 @@ def write_config(section, key, value):
         cfg.add_section(section)
 
     cfg.set(section, key, value)
-    
+
     with open('core/config.ini', 'w') as f:
         cfg.write(f)
 
@@ -141,12 +138,3 @@ def data_to_doc(mysql_conf, data):
         }
 
     return doc
-
-# 验证文档是否存在
-def exists_by_doc_id(esclient, elastic, doc_id):
-    return esclient.exists(
-            index=elastic['index'],
-            doc_type=elastic['type'],
-            id=doc_id,
-        )
-
