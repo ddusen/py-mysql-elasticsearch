@@ -2,7 +2,8 @@ import os, sys
 sys.path.append(os.getcwd())
 
 from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import (NotFoundError, ConflictError, )
+from elasticsearch.client import IndicesClient
+from elasticsearch.exceptions import (NotFoundError, ConflictError, RequestError, )
 
 from pymysqlreplication import BinLogStreamReader
 from pymysqlreplication.row_event import (DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent, 
@@ -10,7 +11,8 @@ from pymysqlreplication.row_event import (DeleteRowsEvent, UpdateRowsEvent, Writ
 
 from process import (read_config, get_articles, get_article_total,
                     sqldata_to_doc, write_config, bin_delete, 
-                    bindata_to_doc, bin_create, bin_update, )
+                    bindata_to_doc, bin_create, bin_update, 
+                    init_elastic, )
 from utils.logger import (Logger, )
 
 
@@ -25,6 +27,10 @@ class Sync:
 
         # inital logging
         self.logger = Logger()
+
+        # inital elastic doc types
+        eval(init_elastic(self.elastic['init']))
+
 
     #基于 SQL 语句的全量同步    
     def _full_sql(self):
@@ -83,9 +89,10 @@ class Sync:
         self.logger.record('Ending：based binlog.')
 
     # elastic 
-    def _elastic(self, doc_id, doc={}, option='create'):
+    def _elastic(self, doc_id=None, doc={}, option='create'):
         """
         option: 
+            init: 初始化文档结构。（当config.ini中的init为True时才会执行。）
             create: 若文档已存在，则不执行任何操作。 若文档不存在，则直接创建。
             update: 若文档已存在，则直接更新。 若文档不存在，则不执行任何操作。
             delete: 若文档已存在，则直接删除。若文档不存在，则不执行任何操作。
@@ -126,10 +133,19 @@ class Sync:
             except NotFoundError:
                 status = 'Fail(not existsd) !'
 
+        elif 'init' == option:
+            try:
+                IndicesClient(esclient).create(
+                    index=self.elastic['index'],
+                    body=doc,
+                )
+            except RequestError:
+                status = 'Fail(existsd) !'
+
         self.logger.record('Sync@%s < %s-%s-%s > %s' % (option, self.elastic['index'], self.elastic['type'], doc_id, status, ))
 
 
 if __name__ == '__main__':
     sync = Sync()
-    # sync.full_sql()
-    sync._binlog()
+    sync._full_sql()
+    # sync._binlog()

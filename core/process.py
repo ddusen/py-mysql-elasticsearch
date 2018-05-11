@@ -21,6 +21,7 @@ def read_config():
         'db': cfg.get('mysql', 'db'),
     }
     elastic_conf = {
+        'init': cfg.get('elastic', 'init'),
         'host': cfg.get('elastic', 'host'),
         'port': cfg.getint('elastic', 'port'),
         'index': cfg.get('elastic', 'index'),
@@ -41,7 +42,6 @@ def read_config():
 
     return {'mysql': mysql_conf, 'elastic': elastic_conf, 'binlog': binlog_conf, }
 
-
 # 写入 config.ini 配置项
 def write_config(section, key, value):
     cfg = RawConfigParser()
@@ -53,6 +53,44 @@ def write_config(section, key, value):
 
     with open('core/config.ini', 'w') as f:
         cfg.write(f)
+
+# 初始化 elastic doc types
+def init_elastic(flag):
+    if 'True' == flag:
+        # 修改初始化为 False
+        write_config('elastic', 'init', 'False')
+        # 执行初始化命令
+        return '''self._elastic(doc={ "mappings": {
+                                    "article": {
+                                        "properties": {
+                                            "title": {
+                                                "type": "text"
+                                            },
+                                            "url": {
+                                                "type": "keyword"
+                                            },
+                                            "pubtime": {
+                                                "type": "date",
+                                                "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+                                            },
+                                            "source": {
+                                                "type": "text"
+                                            },
+                                            "score": {
+                                                "type": "long"
+                                            },
+                                            "invalid_keyword": {
+                                                "type": "text"
+                                            },
+                                            "risk_keyword": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    }
+                                }
+                            }, option="init")'''
+    else:
+        return '1 + 1'
 
 # 业务相关方法：获取 categories
 def get_categories(mysql_conf, article_guid):
