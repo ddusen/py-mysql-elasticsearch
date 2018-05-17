@@ -66,7 +66,6 @@ class Sync:
                                     only_tables=self.binlog['only_tables'],
                                     only_events=[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent, ],
                                     )
-        print(stream)
         for binlogevent in stream:
 
             #record log file and log pos
