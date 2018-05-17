@@ -130,7 +130,7 @@ def get_articles(mysql_conf, start, length):
 
 # 业务相关方法：获取 article
 def get_article(mysql_conf, guid):
-    sql = 'SELECT `guid`, `title`, `url`, `pubtime`, `source`, `score`, `risk_keyword`, `invalid_keyword` FROM `base_article` WHERE `guid` = '
+    sql = 'SELECT `guid`, `title`, `url`, `pubtime`, `source`, `score`, `risk_keyword`, `invalid_keyword` FROM `base_article` WHERE `guid` = %s'
     article = query_one(sql=sql, db_config=mysql_conf, list1=(guid, ))
 
     return article

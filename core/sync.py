@@ -69,8 +69,11 @@ class Sync:
         for binlogevent in stream:
 
             #record log file and log pos
-            write_config('mysql_binlog', 'log_file', stream.log_file)
-            write_config('mysql_binlog', 'log_pos', stream.log_pos)
+            log_file = stream.log_file
+            log_pos = stream.log_pos
+            write_config('mysql_binlog', 'log_file', log_file)
+            write_config('mysql_binlog', 'log_pos', log_pos)
+            self.logger.record('Excuting：lon_file < %s >, log_pos < %s >.' % (log_file, log_pos, ))
 
             for row in binlogevent.rows:
 
