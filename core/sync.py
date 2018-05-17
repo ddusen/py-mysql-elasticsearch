@@ -66,7 +66,7 @@ class Sync:
                                     only_tables=self.binlog['only_tables'],
                                     only_events=[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent, ],
                                     )
-
+        print(stream)
         for binlogevent in stream:
 
             #record log file and log pos
@@ -74,7 +74,10 @@ class Sync:
             write_config('mysql_binlog', 'log_pos', stream.log_pos)
 
             for row in binlogevent.rows:
-                values = row['values']
+
+                values = row.get('values')
+                values = row.get('after_values') if not values else values
+
                 if isinstance(binlogevent, DeleteRowsEvent):
                     eval(bin_delete(binlogevent.table, values))
 
@@ -147,5 +150,5 @@ class Sync:
 
 if __name__ == '__main__':
     sync = Sync()
-    sync._full_sql()
+    # sync._full_sql()
     sync._binlog()
