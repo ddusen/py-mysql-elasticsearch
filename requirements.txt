@@ -6,7 +6,7 @@ wheel >= 0.30.0
 
 # MySQL
 PyMySQL >= 0.7.11
-mysql-replication > 0.18
+mysql-replication >= 0.18
 
 # ES
 elasticsearch >= 6.2.0
