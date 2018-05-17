@@ -12,7 +12,7 @@ from pymysqlreplication.row_event import (DeleteRowsEvent, UpdateRowsEvent, Writ
 from process import (read_config, get_articles, get_article_total,
                     sqldata_to_doc, write_config, bin_delete, 
                     bindata_to_doc, bin_create, bin_update, 
-                    init_elastic, )
+                    init_elastic, get_article, )
 from utils.logger import (Logger, )
 
 
@@ -149,5 +149,5 @@ class Sync:
 
 if __name__ == '__main__':
     sync = Sync()
-    # sync._full_sql()
+    sync._full_sql()
     sync._binlog()
