@@ -148,4 +148,4 @@ class Sync:
 if __name__ == '__main__':
     sync = Sync()
     sync._full_sql()
-    # sync._binlog()
+    sync._binlog()
