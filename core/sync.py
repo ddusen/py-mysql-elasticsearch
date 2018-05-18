@@ -77,17 +77,22 @@ class Sync:
 
             for row in binlogevent.rows:
 
-                values = row.get('values')
-                values = row.get('after_values') if not values else values
+                try:
+                    values = row.get('values')
+                    values = row.get('after_values') if not values else values
 
-                if isinstance(binlogevent, DeleteRowsEvent):
-                    eval(bin_delete(binlogevent.table, values))
+                    if isinstance(binlogevent, DeleteRowsEvent):
+                        eval(bin_delete(binlogevent.table, values))
 
-                elif isinstance(binlogevent, WriteRowsEvent):
-                    eval(bin_create(binlogevent.table, values))
+                    elif isinstance(binlogevent, WriteRowsEvent):
+                        eval(bin_create(binlogevent.table, values))
 
-                elif isinstance(binlogevent, UpdateRowsEvent):
-                    eval(bin_update(binlogevent.table, values))
+                    elif isinstance(binlogevent, UpdateRowsEvent):
+                        eval(bin_update(binlogevent.table, values))
+
+                except Exception, e:
+                    self.logger.record(e, lt='ERROR')
+                    continue
 
         stream.close()
 
