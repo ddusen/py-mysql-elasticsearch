@@ -90,7 +90,7 @@ class Sync:
                     elif isinstance(binlogevent, UpdateRowsEvent):
                         eval(bin_update(binlogevent.table, values))
 
-                except Exception, e:
+                except Exception as e:
                     self.logger.record(e, lt='ERROR')
                     continue
 
