@@ -35,6 +35,8 @@ es的一个doc里面，导致 go-mysql-elasticsearch 没办法满足我的业务
 
 如果需要引用代码，或直接拿过去用，不用告知，爽朗的用就行了。**开源与开放促进社会的发展与进步。**
 
+*****
+
 ### 需求
 
 > 同步 MySQL 部分表数据到 ElasticSearch，处理 ManyToMany 的关系，数据存放到同一张表。
